@@ -1,0 +1,45 @@
+<nav class='blue darken-4'>
+  <div class='nav-wrapper'>
+    <a href='/' class='brand-logo'>Компьютерный интернет-магазин</a>
+    <ul id='nav-mobile' class='right hide-on-med-and-down'>
+
+
+      <li {{#if isView.index}}class='active'{{/if}}><a href='/'>Главная</a></li>
+
+      {{#unless state.currentUser}}
+        <li {{#if isView.auth}}class='active'{{/if}}><a href='/auth'>Войти</a></li>
+      {{else}}
+        {{#if state.isLogNoAdmin}}
+          <li {{#if isView.purchases}}class='active'{{/if}}><a href='/purchases'>Покупки</a></li>
+          <li {{#if isView.refunds}}class='active'{{/if}}><a href='/refunds'>Возвраты</a></li>
+        {{else}}
+          <li {{#if isView.edit}}class='active'{{/if}}><a href='/edit'>Редактировать</a></li>
+        {{/if}}
+        <li><a href='/log-out' onClick="return window.confirm('OK?');">Выйти</a></li>
+      {{/unless}}
+
+      {{#if state.isDebug}}
+        <li><a href='/debug'>debug</a></li>
+      {{/if}}
+
+    </ul>
+  </div>
+
+</nav>
+
+<div class="user-info">
+  <p>
+    {{#if state.currentUser}}
+    <span><b>Пользователь: {{state.currentUser.user_name}}</b></span>
+    {{/if}}
+
+    {{#if state.isLogNoAdmin}}
+    <br><b>Баланс: ∞</b></br>
+    <span><b>Бонусов на карте: {{#if state.bonus_count}} {{state.bonus_count}} {{else}} <i>нет бонусной карты</i> {{/if}}</b></span>
+    {{/if}}
+
+    {{#if state.isLogAdmin}}
+    <br><b>Администратор</b></br>
+    {{/if}}
+  </p>
+</div>

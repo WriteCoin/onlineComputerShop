@@ -1,0 +1,536 @@
+{{#unless state.isView.add}}
+<div class="forma">
+  <details>
+    <summary><b>Фильтры</b></summary>
+    <form action="/filter" method="POST" style="width: 100%;">
+      <p><span><b>Название товара:</b></span>
+      <input
+        type='text'
+        name='product_name'
+      /></p>
+
+      <p><span><b>Категория товара: </b></span>
+        <label>
+          <p>
+            <div class="subcategory_name">
+              <select name='subcategory_name'>
+                {{#if state.dictData.subcategories.length}}
+                  <option value='Любая'>Любая</option>
+                  {{#each state.dictData.subcategories}}
+                    <option value='{{subcategory_name}}'>{{subcategory_name}}</option>
+                  {{/each}}
+                {{/if}}
+              </select>
+            </div>
+          </p>
+        </label>
+      </p>
+
+      <p><b>Цена: </b></p>
+      <p>От </p>
+      <input
+        type='number'
+        step='1'
+        min='1'
+        max='{{state.constants.MAX_PRICE}}'
+        name='price_min'
+      />
+      <p> до</p>
+      <input
+        type='number'
+        step='1'
+        min='1'
+        max='{{state.constants.MAX_PRICE}}'
+        name='price_max'
+      />
+
+      <p><b>Бонусные рубли: </b></p>
+      <p>От </p>
+      <input
+        type='number'
+        step='1'
+        min='0'
+        max='{{constants.MAX_PRICE}}'
+        name='additional_bonus_count_min'
+      /></p>
+      <p> до</p>
+      <input
+        type='number'
+        step='1'
+        min='0'
+        max='{{constants.MAX_PRICE}}'
+        name='additional_bonus_count_max'
+      /></p>
+
+      {{#if state.isView.purchases}}
+      <p><b>Дата покупки: </b></p>
+      <input
+        type='date'
+        {{!-- step='1'
+        min='0'
+        max='{{constants.MAX_PRICE}}' --}}
+        name='date_of_purchase'
+      /></p>
+      {{/if}}
+
+      <button
+        class='btn btn-small'
+        name='button-filter'
+        type='submit'
+      >Применить</button>
+    </form>
+  </details>
+</div>
+{{/unless}}
+
+<p></p>
+
+{{#if productsData.length}}
+  <ul>
+    {{#each productsData}}
+    <li class='forma'>
+      <form
+        action=
+        {{#if isView.index}}
+          '/buy'
+        {{/if}}
+        {{#if isView.buy}}
+          '/buy-product'
+        {{/if}}
+        {{#if isView.edit}}
+          '/edit'
+        {{/if}}
+        {{#if isView.add}}
+          {{#if isProps}}
+          '/add-props'
+          {{else}}
+          '/add'
+          {{/if}}
+        {{/if}}
+        {{#if isView.purchases}}
+          '/refund'
+        {{/if}}
+        {{#if isView.refund}}
+          '/refund-product'
+        {{/if}}
+        method="POST"
+      >
+
+      {{#if (and
+        (ne isView.edit true)
+        (ne isView.add true)
+      )}}
+        {{#if isView.index}}
+        <h4>{{product_name}}</h4>
+        {{/if}}
+        {{#ifCond isView.purchases '||' isView.refunds}}
+        <h5><b>{{#if isView.purchases}}Покупка:{{else}}Возврат:{{/if}} {{product_name}}</b></h5>
+        {{/ifCond}}
+        {{#if isView.buy}}
+        <h5><b>Купить: {{product_name}}</b></h5>
+        {{/if}}
+        <input type='hidden' value='{{product_name}}' name='product_name' />
+
+        {{#if (ne isView.buy)}}
+        {{!-- <p><i>Категории: </i><a href='/categories'>{{subcategory.category.category_name}}</a> > 
+          <a href='/subcategories'>{{subcategory.subcategory_name}}</a>
+        </p> --}}
+        <p><i>Категории: </i> <b>{{subcategory.category.category_name}}</b> > <b>{{subcategory.subcategory_name}}</b></p>
+        {{/if}}
+        <input type='hidden' value='{{subcategory.category.category_name}}' name='category_name' />
+        <input type='hidden' value='{{subcategory.subcategory_name}}' name='subcategory_name' />
+        <input type='hidden' value='{{subcategory.category.id}}' name='category_id' />
+        <input type='hidden' value='{{subcategory.id}}' name='subcategory_id' />
+
+        <details class='details'>
+          <p>
+            <summary><b>Характеристики</b></summary>
+            <table>
+              {{#if properties.length}}
+              {{#each properties}}
+                <tr>
+                  <td><b>{{property_type.property_name}}:</b></td>
+                  <td>{{property_value}} <span> {{property_type.measurement_unit.measurement_unit_name}}</span></td>
+                  <input type='hidden' value='{{property_value}}' name='{{property_type.property_name}}' />
+                </tr>
+              {{/each}}
+              {{/if}}
+            </table>
+          </p>
+        </details>
+
+        <p><span><b>Описание:</b></span>
+          <div class="product_desc">
+            <p>{{product_desc}}</p>
+          </div>
+        </p>
+        <input type='hidden' value='{{product_desc}}' name='product_desc' />
+
+        <p name='price'><span><b>Стоимость закупки: </b></span>{{price}} руб.</p>
+        <input type='hidden' value='{{price}}' name='price' />
+
+        <p name='quantity_in_stock'><span><b>Кол-во на складе: </b></span>{{quantity_in_stock}}</p>
+        <input type='hidden' value='{{quantity_in_stock}}' name='quantity_in_stock' />
+
+        <p name='additional_bonus_count'><span><b>Доп. число бонусных рублей: </b></span>{{additional_bonus_count}}</p>
+        <input type='hidden' value='{{additional_bonus_count}}' name='additional_bonus_count' />
+
+        <input type='hidden' value='{{id}}' name='id' />
+        <input type='hidden' value='{{image_path}}' name='image_path' />
+
+        {{#if isLogNoAdmin}}
+        {{#if isView.index}}
+        {{#ifCond quantity_in_stock '>' 0}}
+        <input
+          type='number'
+          class='quantity_in_stock'
+          step='1'
+          min='1'
+          max='{{quantity_in_stock}}'
+          required
+          name='quantity'
+          value='1'
+          placeholder="Введите количество единиц покупаемого товара"
+        />
+        {{/ifCond}}
+        <button 
+          class='btn btn-small'
+          name='button-product'
+          type='submit'
+          value='Купить'
+          {{#ifCond quantity_in_stock '==' 0}}
+          disabled
+          {{/ifCond}}
+        >Купить</button>
+        {{/if}}
+        {{#if isView.buy}}
+        <input
+          type='number'
+          class='quantity_in_stock'
+          step='1'
+          min='1'
+          max='{{quantity_in_stock}}'
+          required
+          name='quantity'
+          value='{{quantity}}'
+          placeholder="Введите количество единиц покупаемого товара"
+        />
+        <input type='hidden' value='{{bonus_count}}' name='bonus_count' />
+        <input type='hidden' value='{{discount}}' name='discount' />
+        <input type='hidden' value='{{final_price}}' name='final_price' />
+        <p><span><b>Скидка составляет: </b></span>{{discount}} бонусных рублей</p>
+        <p><span><b>Вы получите на {{#if addBonusCard}}новую{{/if}} бонусную карту: </b></span>{{additional_bonus_count}} бонусных рублей</p>
+        <h5><b>Итого: {{final_price}} ₽</b></h5>
+        <button 
+          class='btn btn-small'
+          name='button-product'
+          type='submit'
+          value='Купить товар'
+          onClick="return window.confirm('OK?');"
+        >Купить товар</button>
+
+
+        {{#if notFunds}}
+        <script type='text/javascript'>
+          alert('Недостаточно средств для приобретения товара!')
+        </script>
+        {{/if}}
+        {{#if isPaid}}
+        <script type='text/javascript'>
+          alert('Покупка совершена успешно!')
+        </script>
+        {{/if}}
+        {{/if}}
+        {{#if isView.purchases}}
+        <p><span><b>Дата покупки: </b></span>{{date_of_purchase}}</p>
+        <p><span><b>Цена покупки: </b></span>{{final_price}}</p>
+        <p><span><b>Количество купленного товара: </b></span>{{quantity}}</p>
+        <input type='hidden' value='{{id}}' name='purchase_id' />
+        <input type='hidden' value='{{quantity}}' name='quantity' />
+        <input type='hidden' value='{{final_price}}' name='final_price' />
+
+        <button
+          class='btn btn-small'
+          name='button-product'
+          type='submit'
+          value='Вернуть товар'
+          onClick="return window.confirm('OK?');"
+          {{#if isRefund}}
+          disabled
+          {{/if}}
+        >Вернуть товар</button>
+        {{#if isRefund}}
+        <label><p>Эта покупка была возвращена</p></label>
+        {{/if}}
+        {{/if}}
+        {{#if isView.refund}}
+        <p><span><b>Количество купленного товара: </b></span>{{quantity}}</p>
+        <p><span><b>Причина возврата: </b></span>
+          <div class='product_desc'>
+            <textarea name='reason_for_refund'></textarea>
+          </div>
+        </p>
+        <input type='hidden' value='{{purchase_id}}' name='purchase_id' />
+        <input type='hidden' value='{{quantity}}' name='quantity' />
+        <input type='hidden' value='{{final_price}}' name='final_price' />
+
+        <button
+          class='btn btn-small'
+          name='button-product'
+          type='submit'
+          value='Вернуть товар'
+          onClick="return window.confirm('OK?');"
+        >Вернуть товар</button>
+        {{/if}}
+        {{#if isView.refunds}}
+        <input type='hidden' value='{{id}}' name='id' />
+        <p><span><b>Количество купленного товара: </b></span>{{quantity}}</p>
+        <p><span><b>Дата возврата: </b></span>{{date_of_refund}}</p>
+        <p><span><b>Причина возврата:</b></span>
+          <div class="product_desc">
+            <p>{{reason_for_refund}}</p>
+          </div>
+        </p>
+        {{/if}}
+        {{/if}}
+
+      {{/if}}
+
+      {{#if (or isView.edit isView.add)}}
+
+        {{#if (or isView.edit (and (ne isProps true) isView.add))}}
+        <p><span><b>Название:</b></span>
+        <input
+          type='text'
+          required
+          name='product_name'
+          placeholder='Введите название товара'
+          value='{{product_name}}'
+        /></p>
+        {{/if}}
+
+        {{#if (or isView.edit (and isProps isView.add))}}
+        <details class='details' {{#if isView.add}} open {{/if}}>
+          <p>
+            <summary><b>Характеристики</b></summary>
+            <ul>
+            {{#if properties.length}}
+            {{#each properties}}
+              <li class='property' style='list-style-type: none;'>
+                <span><b>{{property_type.property_name}}:</b></span>
+                <div style='display: flex; width: 500px'>
+                  {{#if_eq property_type.data_type.data_type_name 'string'}}
+                  <input
+                    type='text'
+                    class='validate'
+                    required
+                    name='{{property_type.property_name}}'
+                    value='{{property_value}}'
+                    placeholder='Введите строку'
+                  />
+                  {{/if_eq}}
+                  {{#if_eq property_type.data_type.data_type_name 'integer'}}
+                  <input
+                    type='number'
+                    class='validate'
+                    step='1'
+                    min='{{Number.MIN_SAFE_INTEGER}}'
+                    max='{{Number.MAX_SAFE_INTEGER}}'
+                    required
+                    name='{{property_type.property_name}}'
+                    value='{{property_value}}'
+                    placeholder="Введите число"
+                  />
+                  <span>{{property_type.measurement_unit.measurement_unit_name}}</span>
+                  {{/if_eq}}
+                  {{#if_eq property_type.data_type.data_type_name 'real'}}
+                  <input
+                    type='number'
+                    class='validate'
+                    step='0.01'
+                    min='{{Number.MIN_VALUE}}'
+                    max='{{Number.MAX_VALUE}}'
+                    required
+                    name='{{property_type.property_name}}'
+                    value='{{property_value}}'
+                    placeholder="Введите число (дробь)"
+                  />
+                  <span>{{property_type.measurement_unit.measurement_unit_name}}</span>
+                  {{/if_eq}}
+                  {{#if_eq property_type.data_type.data_type_name 'boolean'}}
+                  <label style='width: 75px;'>
+                    <input type='radio' class='validate' value='{{property_value}}' name='{{property_type.property_name}}'/>
+                    <span>Да</span>
+                  </label>
+                  <label style='width: 75px;'>
+                    <input type='radio' class='validate' value='{{property_value}}' name='{{property_type.property_name}}'/>
+                    <span>Нет</span>
+                  </label>
+                  {{/if_eq}}
+                </div>
+              </li>
+            {{/each}}
+            {{/if}}
+            </ul>
+          </p>
+        </details>
+        {{/if}}
+
+        {{#if (and isProps isView.add)}}
+        <h5>Проверьте данные товара</h5>
+        <p><span><b>Название:</b></span>
+        <input
+          type='text'
+          required
+          name='product_name'
+          placeholder='Введите название товара'
+          value='{{product_name}}'
+        /></p>
+        {{/if}}
+
+        <p><span><b>Подкатегория: </b></span>
+          <label>
+            {{#unless isProps}}<span>Выберите тип товара</span>{{/unless}}
+            <p>
+              <div class="subcategory_name">
+                <select required name='subcategory_name'>
+                  {{#if subcategories.length}}
+                  {{#each subcategories}}
+                  <option 
+                    value='{{subcategory_name}}' 
+                    {{#if_eq subcategory_name product.subcategory.subcategory_name}} 
+                    selected 
+                    {{/if_eq}}>
+                      {{subcategory_name}}
+                  </option>
+                  {{/each}}
+                  {{/if}}
+                </select>
+              </div>
+            </p>
+          </label>
+        </p>
+        <input type='hidden' value='{{subcategory.category.category_name}}' name='category_name' />
+        <input type='hidden' value='{{subcategory.category.id}}' name='category_id' />
+        <input type='hidden' value='{{subcategory_id}}' name='subcategory_id' />
+
+        <p><span><b>Описание: </b></span>
+          <div class='product_desc'>
+            <textarea name='product_desc' placeholder="Введите описание товара">{{product_desc}}</textarea>
+          </div>
+        </p>
+
+        <p><span><b>Стоимость закупки, руб.: </b></span>
+        <input
+          type='number'
+          class='price'
+          step='1'
+          min='1'
+          max='{{constants.MAX_PRICE}}'
+          required
+          name='price'
+          value='{{price}}'
+        /></p>
+
+        <p><span><b>Кол-во на складе: </b></span>
+        <input
+          type='number'
+          class='quantity_in_stock'
+          step='1'
+          min='1'
+          max='{{constants.MAX_QUANTITY_IN_STOCK}}'
+          required
+          name='quantity_in_stock'
+          value='{{quantity_in_stock}}'
+        /></p>
+
+        <p><span><b>Доп. число бонусов, руб.: </b></span>
+        <input
+          type='number'
+          class='additional_bonus_count'
+          step='1'
+          min='0'
+          max='{{constants.MAX_PRICE}}'
+          required
+          name='additional_bonus_count'
+          value='{{additional_bonus_count}}'
+        /></p>
+
+        {{#unless isProps}}
+        <details class='details2' hidden='true'>
+          <p>
+            <summary>
+              Характеристики ->->->
+            </summary>
+          </p>
+        </details>
+        {{/unless}}
+
+        <p></p>
+        <input type='hidden' value='{{image_path}}' name='image_path' />
+        <input type='hidden' value='{{id}}' name='id' />
+        <input type='hidden' value='{{isNewProperties}}' name='isNewProperties' />
+
+        {{#if isView.edit}}
+        <button
+          class='btn btn-small'
+          name='button-product'
+          type='submit'
+          value='Изменить товар'
+          onClick="return window.confirm('OK?');"
+        >Изменить товар</button>
+        <button
+          class='btn btn-small'
+          name='button-product'
+          type='submit'
+          value='Удалить товар'
+          onClick="return window.confirm('OK?');"
+        >Удалить товар</button>
+        {{/if}}
+
+        {{#if isView.add}}
+        <button
+          class='btn btn-small'
+          name='button-add-product'
+          type='submit'
+        >{{#if isProps}}Добавить товар{{else}}Добавить характеристики{{/if}}</button>
+        
+        {{#if isExists}}
+        <script type='text/javascript'>
+          alert('Товар с таким именем уже существует')
+        </script>
+        {{/if}}
+        {{/if}}
+
+      {{/if}}
+
+      </form>
+    </li>
+    {{/each}}
+  </ul>
+
+{{else}}
+
+    {{#if queryProducts}}
+    <p>Товары не найдены</p>
+    {{else}}
+
+    {{#if isView.index}}
+    <p>Нет товаров!</p>
+    {{/if}}
+
+    {{#if isView.edit}}
+    <p>Нет добавленных товаров</p>
+    {{/if}}
+
+    {{#if isView.purchases}}
+    <p>Нет покупок</p>
+    {{/if}}
+
+    {{#if isView.refunds}}
+    <p>Нет возвращенных товаров</p>
+    {{/if}}
+
+  {{/if}}
+
+{{/if}}

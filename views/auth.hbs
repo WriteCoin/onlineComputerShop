@@ -1,0 +1,45 @@
+<div class="forma">
+  <form action='/auth' method='POST'>
+    <h2>Войти в систему</h2>
+
+    <div class='auth'>
+      <div class='form-group'>
+        <label for='name'>Ваш логин:</label>
+        <input
+          type='text'
+          id='name'
+          required
+          name='name'
+          placeholder='Введите ваш логин...'
+        />
+      </div>
+      <div class='form-group'>
+        <label for='password'>Ваш пароль:</label>
+        <input
+          type='password'
+          id='password'
+          required
+          name='password'
+          placeholder='Введите пароль...'
+        />
+
+      </div>
+
+      <p>
+        <label>
+          <input
+            id='isAdmin'
+            class='checkbox'
+            type='checkbox'
+            name='isAdmin'
+            style='display: inline-block;'
+          />
+          <span>Являюсь администратором</span>
+        </label>
+      </p>
+
+      <button class='btn btn-small' type='submit'>Войти</button>
+    </div>
+
+  </form>
+</div>
